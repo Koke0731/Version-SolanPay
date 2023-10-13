@@ -37,6 +37,7 @@ const Home = () => {
     const [uploadUrl, setUploadUrl] = useState(null);
     const [url, setUrl] = useState(null);
     const [statusText, setStatusText] = useState("");
+    
 
     useEffect(() => {
         let key = window.localStorage.getItem("publicKey"); //obtiene la publicKey del localStorage
