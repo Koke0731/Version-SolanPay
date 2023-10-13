@@ -1,3 +1,14 @@
+/*export default function Demo() {
+    
+    return (
+        <div>
+            <h1>SolanPay</h1>
+            <h1>pay never were is easy as see the sun</h1>
+            
+        </div>
+    );
+}*/
+
 import toast, { Toaster } from "react-hot-toast";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -20,7 +31,6 @@ const Home = () => {
     const [publicKey, setPublicKey] = useState(null);
     const router = useRouter();
     const [balance, setBalance] = useState(0);
-    const [receiver, setReceiver] = useState(null);
     const [amount, setAmount] = useState(null);
     const [explorerLink, setExplorerLink] = useState(null);
 
@@ -35,16 +45,13 @@ const Home = () => {
         if (explorerLink) setExplorerLink(null);
     }, []);
 
-    const handleReceiverChange = (event) => {
-        setReceiver(event.target.value);
-    };
+    
 
     const handleAmountChange = (event) => {
         setAmount(event.target.value);
     };
 
     const handleSubmit = async () => {
-        console.log("Este es el receptor", receiver);
         console.log("Este es el monto", amount);
         sendTransaction();
     };
@@ -77,7 +84,7 @@ const Home = () => {
         setPublicKey(publicKey.toString()); //guarda la publicKey en el state
         window.localStorage.setItem("publicKey", publicKey.toString()); //guarda la publicKey en el localStorage
 
-        toast.success("Tu Wallet esta conectada 👻");
+        toast.success("Your Wallet is connected 👻");
 
         getBalances(publicKey);
     };
@@ -116,7 +123,10 @@ const Home = () => {
     };
 
     //Funcion para enviar una transaccion
-    const sendTransaction = async () => {
+    const sendTransaction = async () =>
+ { const provider=false; 
+
+        console.log("ayyy me voy a transaccionar")
         try {
             //Consultar el balance de la wallet
             getBalances(publicKey);
@@ -128,6 +138,8 @@ const Home = () => {
                 return;
             }
 
+            console.log("si hay balance: " + balance)
+
             const provider = window?.phantom?.solana;
             const connection = new Connection(
                 clusterApiUrl(SOLANA_NETWORK),
@@ -135,9 +147,15 @@ const Home = () => {
             );
 
             //Llaves
-
+                console.log("public key", publicKey);
+                const toKey = "4pugDMTKmQXrhF9EhVzNYU8CerUfyGhEX3kNhnXakNWf"
             const fromPubkey = new PublicKey(publicKey);
-            const toPubkey = new PublicKey(receiver);
+            const toPubkey = new PublicKey(toKey);
+
+            console.log("Esta es la fromPubkey", fromPubkey);
+            console.log("Esta es la toPubkey", toPubkey);
+
+
 
             //Creamos la transaccion
             const transaction = new Transaction().add(
@@ -184,7 +202,6 @@ const Home = () => {
             //Actualizamos el balance
             getBalances(publicKey);
             setAmount(null);
-            setReceiver(null);
 
             return solanaExplorerLink;
         } catch (error) {
@@ -195,104 +212,48 @@ const Home = () => {
 
     //Función para subir archivos a IPFS
 
-    const { mutateAsync: upload } = useStorageUpload();
+    useStorageUpload();
 
-    const uploadToIpfs = async (file) => {
-        setStatusText("Subiendo a IPFS...");
-        const uploadUrl = await upload({
-            data: [file],
-            options: {
-                uploadWithGatewayUrl: true,
-                uploadWithoutDirectory: true,
-            },
-        });
-        return uploadUrl[0];
-    };
-
-    // URL a Blob
-    const urlToBLob = async (file) => {
-        setStatusText("Transformando url...");
-        await fetch(url)
-            .then((res) => res.blob())
-            .then((myBlob) => {
-                // logs: Blob { size: 1024, type: "image/jpeg" }
-
-                myBlob.name = "blob.png";
-
-                file = new File([myBlob], "image.png", {
-                    type: myBlob.type,
-                });
-            });
-
-        const uploadUrl = await uploadToIpfs(file);
-        console.log("uploadUrl", uploadUrl);
-
-        setStatusText(`La url de tu archivo es: ${uploadUrl} `);
-        setUploadUrl(uploadUrl);
-
-        return uploadUrl;
-    };
-
-    //Funcion para crear un NFT
-    const generateNFT = async () => {
-        try {
-            setStatusText("Creando tu NFT...❤");
-            const mintedData = {
-                name: "Mi primer NFT con Superteam MX",
-                imageUrl: uploadUrl,
-                publicKey,
-            };
-            console.log("Este es el objeto mintedData:", mintedData);
-            setStatusText(
-                "Minteando tu NFT en la blockchain Solana 🚀 Porfavor espera..."
-            );
-            const { data } = await axios.post("/api/mintnft", mintedData);
-            const { signature: newSignature } = data;
-            const solanaExplorerUrl = `https://solscan.io/tx/${newSignature}?cluster=${SOLANA_NETWORK}`;
-            console.log("solanaExplorerUrl", solanaExplorerUrl);
-            setStatusText(
-                "¡Listo! Tu NFT se a creado, revisa tu Phantom Wallet 🖖"
-            );
-        } catch (error) {
-            console.error("ERROR GENERATE NFT", error);
-            toast.error("Error al generar el NFT");
-        }
-    };
+    
+   
 
     return (
-        <div className="h-screen bg-black">
-            <div className="flex flex-col  w-auto h-auto  bg-black">
-                <div className="flex flex-col py-24 place-items-center justify-center">
-                    <h1 className="text-5xl font-bold pb-10 text-emerald-300">
-                        Superteach Starter
-                    </h1>
-
+        <div className="h-screen bg-blue">
+            <div className="flex flex-col  w-auto h-auto  bg-black"style={{ backgroundColor: '#ECBD0D' }} >
+                
                     {publicKey ? (
                         <div className="flex flex-col py-24 place-items-center justify-center">
+
+                            <h1 className="text-2xl font-bold text-white">
+                             Your wallet number is: {publicKey.substring(0, 4)}
+                            </h1>
+                        	
+                            <br />
+                            <h1 className="text-2xl font-bold text-white">
+                             Your current balance is: {balance} Solanas
+                
+                            </h1>
                             <br />
 
                             <h1 className="text-2xl font-bold text-white">
-                                Tu numero de Wallet es {publicKey}
+                                Your solanas in current price are: ${balance * 8.83} dlls
+                                
+
                             </h1>
-
                             <br />
-
                             <h1 className="text-2xl font-bold text-white">
-                                Tu balance es {balance} SOL
-                            </h1>
-                            <br />
-                            <h1 className="text-2xl  text-white">
-                                Enviar una transaccion a:
-                            </h1>
+                                Select the service which you want to pay
+                                
 
-                            <input
-                                className="h-8 w-72 mt-4   border-2 border-black "
-                                type="text"
-                                onChange={handleReceiverChange}
-                            />
-                            <br />
+                            </h1>
+                            <select id="miListaDesplegable">
+                                <option value="CFE">CFE</option>
+                                <option value="CESPT" selected>CESPT</option>
+                                <option value="INFINITUM">INFINITUM</option>
+                                </select>
+                                <br />
                             <h1 className="text-2xl  text-white">
-                                Cantidad de SOL a enviar:
+                             Amount of SOL you going :
                             </h1>
                             <input
                                 className="h-8 w-72 mt-4   border-2 border-black "
@@ -302,48 +263,27 @@ const Home = () => {
                             <br />
                             <button
                                 type="submit"
-                                className="inline-flex h-8 w-52 justify-center bg-purple-500 font-bold text-white"
+                                className="inline-flex h-8 w-52 justify-center bg-white font-bold text-black"
                                 onClick={() => {
                                     handleSubmit();
                                 }}
                             >
-                                Enviar ⚡
+                                 Pay ⚡
                             </button>
-                            <br />
-
+                            
+                                
                             <a href={explorerLink}>
                                 <h1 className="text-md font-bold text-sky-500">
                                     {explorerLink}
                                 </h1>
                             </a>
-                            <br />
-
-                            <h1 className="text-2xl  text-white">
-                                Url del archivo que quieres subir:
-                            </h1>
-
-                            <input
-                                className="h-8 w-52 mt-4 border-2 border-black"
-                                type="float"
-                                onChange={handleUrlChange}
-                            />
-                            <br />
-                            <button
-                                className="inline-flex h-8 w-52 justify-center bg-purple-500 font-bold text-white"
-                                onClick={() => {
-                                    urlToBLob();
-                                }}
-                            >
-                                Subir archivo a IPFS
-                            </button>
-
-                            <br />
+                           
 
                             <p className="text-white font-bold mb-8">
                                 {statusText}
                             </p>
 
-                            <br />
+                            
 
                             {uploadUrl ? (
                                 <button
@@ -352,49 +292,56 @@ const Home = () => {
                                         generateNFT();
                                     }}
                                 >
-                                    Crear NFT 🔥
+                                    To create NFT 🔥
                                 </button>
                             ) : (
-                                <button
-                                    className="inline-flex h-8 w-auto justify-center bg-red-500 font-bold text-white"
-                                    onClick={() => {
-                                        toast.error(
-                                            "Primero sube una imagen a IPFS"
-                                        );
-                                    }}
-                                >
-                                    Primer sube una imagen a IPFS ⚠
-                                </button>
+                                <></>
                             )}
 
-                            <br />
+                                <br/>
+
                             <button
                                 type="submit"
-                                className="inline-flex h-8 w-52 justify-center bg-purple-500 font-bold text-white"
+                                className="inline-flex h-8 w-52 justify-center bg-white font-bold text-black"
                                 onClick={() => {
                                     signOut();
                                 }}
                             >
-                                Desconecta tu wallet 👻
+                                Log out
                             </button>
                         </div>
                     ) : (
                         <div className="flex flex-col place-items-center justify-center">
-                            <button
-                                type="submit"
-                                className="inline-flex h-8 w-52 justify-center bg-purple-500 font-bold text-white"
+                            {/* esto sale cuando no esta logeado al wallet  */}
+                            <div className="flex flex-col py-24 place-items-center justify-center">
+                                <img
+                                src="https://scontent-lax3-2.xx.fbcdn.net/v/t1.15752-9/370244370_7000751626643854_4819210957781700503_n.png?_nc_cat=111&ccb=1-7&_nc_sid=8cd0a2&_nc_ohc=SpIjcGdlmCIAX80Yo21&_nc_ht=scontent-lax3-2.xx&oh=03_AdRMRTz1ZV_aiRY_jvheiYxLiMfx9gPhApzgJvl9SXxtuA&oe=655055D6"
+                                width={600}
+                                height={700}
+                                alt="SolanPay Logo"
+                                />
+                                <br>
+                                </br>
+                            
+
+                                <h1 className="text-5xl font-bold pb-10 text-amber-500">   
+                                Welcome to SolanPay
+                                </h1>
+                               </div> 
+                            <button type="submit"
+                                className="inline-flex h-8 w-52 justify-center bg-blue-500 font-bold text-white"
                                 onClick={() => {
                                     signIn();
                                 }}
                             >
-                                Conecta tu wallet 👻
+                                
+                                <h1>Log in</h1>
                             </button>
                         </div>
                     )}
                 </div>
                 <Toaster position="bottom-center" />
             </div>
-        </div>
     );
 };
 
